@@ -2,7 +2,7 @@ use crate::{literal::parse_literal, utils::get_pair_location, DashlangParser, Ru
 
 use errors::{DashlangError, DashlangResult, ErrorKind, ParsingErrorKind};
 
-use ast::{Expr, Location, SubExpr, Symbol};
+use ast::{Expr, Located, Location, SubExpr, Symbol};
 use pest::Parser;
 
 use self::{
@@ -22,7 +22,7 @@ mod dash_expression;
 mod destructuring_assignment;
 mod unary_expression;
 
-pub fn parse_expression(input: &str, base_location: usize) -> DashlangResult<Expr> {
+pub fn parse_expression(input: &str, base_location: usize) -> DashlangResult<Located<Expr>> {
     let ast = DashlangParser::parse(Rule::expression, input)
         .map_err(|err| DashlangError {
             location: match err.location {
@@ -87,7 +87,7 @@ pub fn parse_expression(input: &str, base_location: usize) -> DashlangResult<Exp
     }
     Ok(parsed)
 }
-pub fn parse_sub_expression(input: &str, base_location: usize) -> DashlangResult<SubExpr> {
+pub fn parse_sub_expression(input: &str, base_location: usize) -> DashlangResult<Located<SubExpr>> {
     let ast = DashlangParser::parse(Rule::sub_expression, input)
         .expect("Could not parse sub expression")
         .next()

@@ -1,10 +1,13 @@
-use ast::{Call, Expr, Literal};
+use ast::{Call, Expr, Literal, Located};
 use errors::{DashlangError, DashlangResult, ErrorKind, RuntimeErrorKind};
 
 use crate::{eval, scope::Scope, Context};
 
-pub fn stdlib_push<T: Scope + Clone>(ctx: &Context<T>, call: Call) -> DashlangResult<Literal> {
-    let mut iter_args = call.args.into_iter();
+pub fn stdlib_push<T: Scope + Clone>(
+    ctx: &Context<T>,
+    call: Located<Call>,
+) -> DashlangResult<Located<Literal>> {
+    let mut iter_args = call.value.args.into_iter();
     let base = eval(
         iter_args.next().ok_or(
             DashlangError::new(
@@ -22,11 +25,11 @@ pub fn stdlib_push<T: Scope + Clone>(ctx: &Context<T>, call: Call) -> DashlangRe
         ))?,
         ctx,
     )?;
-    match base {
-        Literal::String(mut val) => match item {
+    match base.value {
+        Literal::String(mut val) => match item.value {
             Literal::String(str_push) => {
-                val.value.push_str(&str_push.value);
-                Ok(Literal::String(val))
+                val.value.value.push_str(&str_push.value.value);
+                Ok(Located::new(Literal::String(val.clone()), val.location))
             }
             _ => Err(DashlangError::new(
                 "Unsuported operation",
@@ -35,8 +38,14 @@ pub fn stdlib_push<T: Scope + Clone>(ctx: &Context<T>, call: Call) -> DashlangRe
             .location(call.location)),
         },
         Literal::Vector(mut vector) => {
-            vector.value.push(Expr::Literal(item));
-            Ok(Literal::Vector(vector))
+            vector.value.value.push(Located::new(
+                Expr::Literal(Located::new(item.value, item.location)),
+                item.location,
+            ));
+            Ok(Located::new(
+                Literal::Vector(vector.clone()),
+                vector.location,
+            ))
         }
         _ => Err(DashlangError::new(
             "Unsuported operation",

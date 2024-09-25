@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use ast::{Literal, Program};
+use ast::{Literal, Located, Program};
 use errors::DashlangResult;
 
 use crate::{
@@ -23,7 +23,7 @@ impl<T: Scope + Clone> Context<T> {
     pub fn use_extension(&mut self, extension: Extension<T>, name: String) {
         self.extensions.insert(name, extension);
     }
-    pub fn run_program(&self, program: Program) -> DashlangResult<Literal> {
+    pub fn run_program(&self, program: Program) -> DashlangResult<Located<Literal>> {
         eval_program(program, self)
     }
     pub fn use_plugin(&mut self, plug: &dyn Plugin<T>) {

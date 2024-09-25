@@ -1,6 +1,8 @@
 mod map;
 
-use ast::{Atom, Boolean, Closure, Expr, Float, Int, Literal, Location, Str, Tuple, Vector};
+use ast::{
+    Atom, Boolean, Closure, Expr, Float, Int, Literal, Located, Location, Str, Tuple, Vector,
+};
 use errors::{DashlangError, DashlangResult, ErrorKind, RuntimeErrorKind};
 use pest::Parser;
 
@@ -11,7 +13,7 @@ use crate::utils::get_pair_location;
 
 use self::map::parse_map;
 
-pub fn parse_literal(input: &str, base_location: usize) -> DashlangResult<Literal> {
+pub fn parse_literal(input: &str, base_location: usize) -> DashlangResult<Located<Literal>> {
     let parsed = DashlangParser::parse(Rule::literal, input)
         .expect("Could not parse value")
         .next()
@@ -258,11 +260,13 @@ mod tests {
     #[test]
     fn test_parse_atom() {
         assert_eq!(
-            parse_literal(":ok", 0),
-            Ok(Literal::Atom(Atom {
-                value: "ok".to_string(),
-                location: (0, 3).into()
-            }))
+            parse_literal(":ok", 0).unwrap().value,
+            Literal::Atom(Located::new(
+                Atom {
+                    value: "ok".to_string(),
+                },
+                (0, 3).into()
+            )),
         );
     }
 }

@@ -6,14 +6,17 @@ use crate::{
     expression::parse_sub_expression, literal::parse_literal, utils::get_pair_location,
     DashlangParser, Rule,
 };
-use ast::{BinaryExpr, Expr, Location, Symbol};
+use ast::{BinaryExpr, Expr, Located, Location, Symbol};
 use errors::{DashlangError, DashlangResult, ErrorKind, ParsingErrorKind};
 use pest::{
     pratt_parser::{Assoc, Op, PrattParser},
     Parser,
 };
 
-pub fn parse_binary_expression(input: &str, base_location: usize) -> DashlangResult<BinaryExpr> {
+pub fn parse_binary_expression(
+    input: &str,
+    base_location: usize,
+) -> DashlangResult<Located<BinaryExpr>> {
     let pratt = PrattParser::new()
         .op(Op::infix(Rule::and, Assoc::Left)
             | Op::infix(Rule::eq, Assoc::Left)

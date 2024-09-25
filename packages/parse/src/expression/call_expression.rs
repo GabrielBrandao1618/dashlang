@@ -1,4 +1,4 @@
-use ast::{Call, Expr, Location};
+use ast::{Call, Expr, Located, Location};
 use errors::DashlangResult;
 use pest::Parser;
 
@@ -9,7 +9,7 @@ use crate::{
 
 use super::parse_expression;
 
-pub fn parse_call_expression(input: &str, base_location: usize) -> DashlangResult<Call> {
+pub fn parse_call_expression(input: &str, base_location: usize) -> DashlangResult<Located<Call>> {
     let ast = DashlangParser::parse(Rule::call_expression, input)
         .expect("Could not parse call expression")
         .next()

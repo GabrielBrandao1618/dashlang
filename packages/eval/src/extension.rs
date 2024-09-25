@@ -1,11 +1,12 @@
 use std::rc::Rc;
 
-use ast::{Call, Literal};
+use ast::{Call, Literal, Located};
 use errors::DashlangResult;
 
 use crate::{scope::Scope, Context};
 
-type ExtensionImplementation<S> = dyn Fn(&Context<S>, Call) -> DashlangResult<Literal>;
+type ExtensionImplementation<S> =
+    dyn Fn(&Context<S>, Located<Call>) -> DashlangResult<Located<Literal>>;
 #[derive(Clone)]
 pub struct Extension<S: Scope> {
     pub implementation: Rc<ExtensionImplementation<S>>,
